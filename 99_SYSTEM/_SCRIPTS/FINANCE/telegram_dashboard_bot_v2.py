@@ -95,6 +95,11 @@ INVOICES_IT_RECEIPT_SUBJECT_SUBSTRINGS = [
     "anthropic invoice",
 ]
 
+LEGACY_ERROR_SUBSTRINGS = [
+    "icloud stage failed",
+    "import icloud stage failed",
+]
+
 
 # =========================
 # Small utilities
@@ -289,12 +294,13 @@ def _quotes_missing_amount_count(rows: Optional[list[dict]] = None) -> int:
 def _health_snapshot() -> dict:
     status, ts = _pipeline_last_status()
     now = _utcnow()
+    start_dt = _pipeline_last_start_dt_utc()
     pipeline_age_min: Optional[int] = None
     ts_dt = _parse_iso_utc(ts or "")
     if ts_dt:
         pipeline_age_min = int((now - ts_dt).total_seconds() // 60)
 
-    err = _latest_pipeline_error()
+    err = _latest_pipeline_error(after_utc=start_dt)
     err_age_min: Optional[int] = None
     err_dt = None
     raw = err.get("raw", "") or ""
@@ -813,29 +819,51 @@ def _risk_report_data() -> dict:
     }
 
 
-def _latest_pipeline_error() -> dict:
+def _is_legacy_icloud_error(stage: str, message: str) -> bool:
+    s = (stage or "").strip().lower()
+    m = (message or "").strip().lower()
+    if "icloud" in s:
+        return True
+    return any(x in m for x in LEGACY_ERROR_SUBSTRINGS)
+
+
+def _latest_pipeline_error(after_utc: Optional[datetime] = None) -> dict:
     """
     Returns {"raw": str, "stage": str, "code": str, "message": str}
     or empty fields if no errors.
+    If after_utc is provided, returns only errors at/after this timestamp.
+    Legacy iCloud errors are ignored (deprecated flow).
     """
     text = _read_text(PIPELINE_ERRORS, 120_000)
     if not text.strip():
         return {"raw": "", "stage": "", "code": "", "message": ""}
-    raw = text.splitlines()[-1].strip()
-    if not raw:
-        return {"raw": "", "stage": "", "code": "", "message": ""}
-    try:
-        obj = json.loads(raw)
-    except Exception:
-        obj = {}
-    if isinstance(obj, dict):
-        return {
-            "raw": raw,
-            "stage": str(obj.get("stage") or ""),
-            "code": str(obj.get("exit_code") or ""),
-            "message": str(obj.get("message") or ""),
-        }
-    return {"raw": raw, "stage": "", "code": "", "message": ""}
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    for raw in reversed(lines):
+        try:
+            obj = json.loads(raw)
+        except Exception:
+            # For non-JSON lines we cannot validate timestamp/stage.
+            if after_utc is not None:
+                continue
+            return {"raw": raw, "stage": "", "code": "", "message": ""}
+
+        if not isinstance(obj, dict):
+            continue
+
+        stage = str(obj.get("stage") or "")
+        code = str(obj.get("exit_code") or "")
+        message = str(obj.get("message") or "")
+        err_dt = _parse_iso_utc(str(obj.get("ts_utc") or ""))
+
+        if _is_legacy_icloud_error(stage, message):
+            continue
+        if after_utc is not None:
+            if err_dt is None or err_dt < after_utc:
+                continue
+
+        return {"raw": raw, "stage": stage, "code": code, "message": message}
+
+    return {"raw": "", "stage": "", "code": "", "message": ""}
 
 
 def _risk_signature(data: dict) -> str:
@@ -1564,8 +1592,9 @@ async def show_invoices(query) -> None:
 
 async def show_status(query) -> None:
     status, ts = await asyncio.to_thread(_pipeline_last_status)
-    last_err_text = await asyncio.to_thread(_read_text, PIPELINE_ERRORS, 120_000)
-    has_err = bool(last_err_text.strip())
+    start_dt = await asyncio.to_thread(_pipeline_last_start_dt_utc)
+    err = await asyncio.to_thread(_latest_pipeline_error, start_dt)
+    has_err = bool(err.get("raw"))
 
     lines = [
         "⚙️ Статус системы",
@@ -1579,25 +1608,11 @@ async def show_status(query) -> None:
         f"Ошибки: {'есть' if has_err else '—'}",
     ]
     if has_err:
-        raw = last_err_text.splitlines()[-1].strip()
-        try:
-            obj = json.loads(raw)
-        except Exception:
-            obj = {}
-
-        if isinstance(obj, dict) and obj:
-            stage = (obj.get("stage") or "").strip() or "UNKNOWN"
-            msg = (obj.get("message") or "").strip()
-            code = str(obj.get("exit_code") or "").strip()
-            # Backward-compat: older logs used this wording.
-            if "iCloud stage failed" in msg:
-                msg = msg.replace("IMPORT iCloud stage failed", "IMPORT_GMAIL stage failed")
-            short = msg[:240] + ("…" if len(msg) > 240 else "")
-            lines += ["", f"Последняя ошибка: {stage} (код {code or '—'})", short]
-        else:
-            raw = raw[:600]
-            if raw:
-                lines += ["", f"Последняя ошибка (строка): {raw}"]
+        stage = (err.get("stage") or "").strip() or "UNKNOWN"
+        msg = (err.get("message") or "").strip()
+        code = str(err.get("code") or "").strip()
+        short = msg[:240] + ("…" if len(msg) > 240 else "")
+        lines += ["", f"Последняя ошибка: {stage} (код {code or '—'})", short]
     await _edit(query, "\n".join(lines), _back_with_ai_kb())
 
 
@@ -1633,7 +1648,8 @@ async def show_risk_report(query) -> None:
 async def show_notify_menu(query) -> None:
     chat_id = query.message.chat_id
     enabled = _notify_enabled(chat_id)
-    err = await asyncio.to_thread(_latest_pipeline_error)
+    start_dt = await asyncio.to_thread(_pipeline_last_start_dt_utc)
+    err = await asyncio.to_thread(_latest_pipeline_error, start_dt)
     risk = await asyncio.to_thread(_risk_report_data)
     sig = _risk_signature(risk)
     missing_quotes = await asyncio.to_thread(_quotes_missing_amount_count)
@@ -1710,7 +1726,7 @@ async def _notification_tick(context: ContextTypes.DEFAULT_TYPE) -> None:
         state = _get_chat_state(chat_id)
 
         # 1) Pipeline error notifications
-        err = _latest_pipeline_error()
+        err = _latest_pipeline_error(after_utc=_pipeline_last_start_dt_utc())
         raw = err.get("raw", "")
         last_raw = str(state.get("notify_last_error_raw") or "")
         if raw and raw != last_raw:
