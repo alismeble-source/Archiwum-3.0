@@ -43,8 +43,8 @@
 
 ## 📊 Repository Statistics
 
-- **Total Directories:** 17
-- **Total Files:** 19
+- **Total Directories:** 17 (18 including root)
+- **Total Files:** 21 (including new documentation)
 - **Nesting Level:** Up to 2 subfolders
 - **System Version:** 3.0.0
 - **Created:** 2026-02-16
