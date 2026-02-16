@@ -1,0 +1,57 @@
+# Виртуальное окружение Python
+.venv/
+venv/
+env/
+ENV/
+
+# VS Code настройки
+.vscode/
+
+# Временные файлы
+.tmp.driveupload/
+*.tmp
+*.temp
+*.log
+
+# Системные файлы
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Конфиденциальные данные
+*.key
+*.pem
+*.cert
+*_secret*
+*_private*
+secrets/
+credentials/
+
+# Личные документы (для безопасности)
+# Раскомментируйте нужные папки:
+# 01_FIRMA/
+# 02_KLIENCI/
+# 03_FINANSE/
+# 04_CAR/
+# 04_DOKUMENTY/
+# 05_FAMILY/
+
+# История и дампы
+telegram_history.json
+98_INCOMING_DUMPS/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Базы данных
+*.db
+*.sqlite
+*.sqlite3
+
+# Переменные окружения
+.env
+.env.local
