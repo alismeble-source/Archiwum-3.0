@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = "C:\Users\alimg\Dropbox\Archiwum 3.0"
 $venvPython = Join-Path $root ".venv\Scripts\python.exe"
 $bot = Join-Path $root "99_SYSTEM\_SCRIPTS\FINANCE\telegram_dashboard_bot_v2.py"
+$botRelative = ".\99_SYSTEM\_SCRIPTS\FINANCE\telegram_dashboard_bot_v2.py"
 $logDir = Join-Path $root "00_INBOX\_ROUTER_LOGS"
 $launcherLog = Join-Path $logDir "telegram_dashboard_launcher.log"
 
@@ -65,7 +66,13 @@ $maxRestarts = 20
 $restarts = 0
 
 while ($true) {
-    & $venvPython $bot
+    Push-Location $root
+    try {
+        # Use relative script path to avoid path-splitting issues with spaces in root path.
+        & $venvPython $botRelative
+    } finally {
+        Pop-Location
+    }
     $rc = $LASTEXITCODE
 
     if ($rc -eq 0) {
