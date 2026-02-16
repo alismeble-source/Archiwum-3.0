@@ -127,3 +127,9 @@ FINANCE/_LEGACY_FINANCE_DOCS/
 FINANCE/_CALENDAR/_LOGS/
 FINANCE/_CALENDAR/DEADLINES.csv
 FINANCE/_CALENDAR/DEADLINES.ics
+
+# Keep folder scaffolding but ignore generated content
+data/*
+!data/.gitkeep
+runtime/*
+!runtime/.gitkeep

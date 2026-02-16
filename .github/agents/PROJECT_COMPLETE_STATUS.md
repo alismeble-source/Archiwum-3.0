@@ -14,6 +14,11 @@
 - Telegram dashboard активен в `99_SYSTEM/_SCRIPTS/FINANCE/telegram_dashboard_bot_v2.py`.
 - Launcher/restart-контур для бота: `99_SYSTEM/_SCRIPTS/FINANCE/run_dashboard_bot.ps1`.
 
+### Repo Bootstrap (сделано)
+- Подготовлен безопасный `.gitignore` для кода/доков без утечки секретов и бизнес-данных.
+- Добавлен каркас масштабируемой структуры: `docs/`, `src/`, `scripts/`, `config/`, `tests/`, `tools/`.
+- Добавлен безопасный скрипт синхронизации `sync.ps1` (стейджит только рабочие code/doc пути, без `git add .`).
+
 ### Dashboard (уже внедрено)
 - One-message UI (редактирование одного сообщения вместо спама).
 - Плитки по данным: почта, оплаты, клиенты/выцены, бух, поиск, статус.
