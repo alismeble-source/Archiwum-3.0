@@ -1,0 +1,48 @@
+name: Feature request
+description: Propose a new capability for ERP/CRM scaling.
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: input
+    id: goal
+    attributes:
+      label: Business goal
+      placeholder: "What business problem does this solve?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: "Describe the feature and expected behavior."
+    validations:
+      required: true
+
+  - type: textarea
+    id: source_of_truth
+    attributes:
+      label: Source of truth data
+      description: Which files/logs will be authoritative?
+      placeholder: "router_log.csv, PAYMENTS.csv, CLIENT_QUOTES.csv ..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Readiness
+      options:
+        - label: No secrets are needed in this issue text
+          required: true

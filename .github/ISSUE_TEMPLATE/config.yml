@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Operations docs
+    url: https://github.com/alismeble-source/Archiwum-3.0/tree/main/docs/operations
+    about: Check existing runbooks before opening an issue.
