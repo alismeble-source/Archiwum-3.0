@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Archiwum_Telegram_Reminders",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"cd 'C:\\Users\\alimg\\Dropbox\\Archiwum 3.0\\99_SYSTEM\\_SCRIPTS\\MAIL'; python telegram_reminders_check.py"
+			],
+			"isBackground": false,
+			"group": "none"
+		}
+	]
+}

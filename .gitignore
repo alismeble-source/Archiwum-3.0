@@ -1,57 +1,129 @@
-# Виртуальное окружение Python
+# =========================
+# Python / virtual env
+# =========================
 .venv/
 venv/
 env/
 ENV/
-
-# VS Code настройки
-.vscode/
-
-# Временные файлы
-.tmp.driveupload/
-*.tmp
-*.temp
-*.log
-
-# Системные файлы
-desktop.ini
-Thumbs.db
-.DS_Store
-
-# Конфиденциальные данные
-*.key
-*.pem
-*.cert
-*_secret*
-*_private*
-secrets/
-credentials/
-
-# Личные документы (для безопасности)
-# Раскомментируйте нужные папки:
-# 01_FIRMA/
-# 02_KLIENCI/
-# 03_FINANSE/
-# 04_CAR/
-# 04_DOKUMENTY/
-# 05_FAMILY/
-
-# История и дампы
-telegram_history.json
-98_INCOMING_DUMPS/
-
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 .Python
+*.so
 
-# Базы данных
+# =========================
+# Editor / local workspace
+# =========================
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# =========================
+# OS / temp
+# =========================
+desktop.ini
+Thumbs.db
+.DS_Store
+.tmp.driveupload/
+*.tmp
+*.temp
+*.bak
+*.bak_*
+*conflict*
+*Конфликт кодировки Юникод*
+
+# =========================
+# Logs / runtime state
+# =========================
+*.log
+.telegram_history.json
+telegram_history.json
+00_INBOX/_ROUTER_LOGS/*.log
+00_INBOX/_ROUTER_LOGS/*.jsonl
+00_INBOX/_ROUTER_LOGS/*.csv
+00_INBOX/_ROUTER_LOGS/*.json
+00_INBOX/_ROUTER_LOGS/*.lock
+00_INBOX/**/_STATE/
+99_SYSTEM/_SCRIPTS/MAIL/00_INBOX/MAIL_RAW/_STATE/
+
+# =========================
+# Secrets / credentials
+# =========================
+99_SYSTEM/_SECRETS/
+**/credentials.json
+**/token.json
+**/*token*.txt
+**/*api_key*.txt
+**/*secret*.txt
+*.pem
+*.key
+*.p12
+.env
+.env.*
+!.env.example
+
+# =========================
+# Large generated data (business data)
+# Keep code/docs in git, keep operational data out
+# =========================
+00_INBOX/
+01_FIRMA/
+02_KLIENCI/
+03_FINANSE/
+04_CAR/
+04_DOKUMENTY/
+05_FAMILY/
+05_PROJEKTY/
+06_ARCHIWUM/
+06_PROJECTS/
+98_INCOMING_DUMPS/
+ALIS/
+CASES/
+FINANCE_DOCS/
+FORENSIC/
+INNE/
+Juliana/
+PROJECTS/
+_COLLECT_DROP/
+_REPLIES_TRAINING/
+_REVIEW/
+_REVIEW_DUPES/
+_REVIEW_TRASH_TECH/
+
+# Optional: keep only templates instead of live finance files
+FINANCE/DOCS/
+FINANCE/PAYMENTS.csv
+FINANCE/CLIENT_QUOTES.csv
+FINANCE/_CALENDAR/_STATE/
+
+# Forensic snapshots and archives
+99_SYSTEM/_FORENSIC/
+*.zip
+*.7z
+*.rar
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# Databases
 *.db
 *.sqlite
 *.sqlite3
 
-# Переменные окружения
-.env
-.env.local
+# =========================
+# Local logs / legacy / tools
+# =========================
+99_SYSTEM/LOGS/
+99_SYSTEM/_LOGS/
+99_SYSTEM/_BACKUP_SECRETS/
+99_SYSTEM/_TOOLS/
+99_SYSTEM/_SCRIPTS/TEMP/
+99_SYSTEM/_SCRIPTS/MAIL/00_INBOX/
+FINANCE/_LEGACY_03_FINANSE/
+FINANCE/_LEGACY_FINANCE_DOCS/
+FINANCE/_CALENDAR/_LOGS/
+FINANCE/_CALENDAR/DEADLINES.csv
+FINANCE/_CALENDAR/DEADLINES.ics

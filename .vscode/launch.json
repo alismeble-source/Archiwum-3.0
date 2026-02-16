@@ -1,0 +1,47 @@
+{
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "PowerShell: Launch Current File",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${file}",
+            "args": [],
+            "cwd": "${fileDirname}"
+        },
+        {
+            "name": "PowerShell: Run Dashboard Bot",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}\\99_SYSTEM\\_SCRIPTS\\FINANCE\\run_dashboard_bot.ps1",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Terminal: Run Dashboard Bot (No PSES)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${workspaceFolder}\\99_SYSTEM\\_SCRIPTS\\FINANCE\\run_dashboard_bot.ps1\""
+        },
+        {
+            "name": "Python: Telegram Dashboard Bot (venv)",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "program": "${workspaceFolder}\\99_SYSTEM\\_SCRIPTS\\FINANCE\\telegram_dashboard_bot_v2.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
