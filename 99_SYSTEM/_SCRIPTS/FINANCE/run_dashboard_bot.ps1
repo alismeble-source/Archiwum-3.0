@@ -22,7 +22,18 @@ if (-not (Test-Path $logDir)) {
 
 function Write-LauncherLog([string]$msg) {
     $ts = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-    Add-Content -Path $launcherLog -Value "$ts $msg"
+    try {
+        Add-Content -Path $launcherLog -Value "$ts $msg" -Encoding UTF8
+    } catch {
+        try {
+            # Recovery path for corrupted/locked launcher log files.
+            Remove-Item -Path $launcherLog -Force -ErrorAction SilentlyContinue
+            Set-Content -Path $launcherLog -Value "$ts log reset after write failure" -Encoding UTF8
+            Add-Content -Path $launcherLog -Value "$ts $msg" -Encoding UTF8
+        } catch {
+            # Logging must never stop launcher workflow.
+        }
+    }
 }
 
 function Stop-ExistingDashboardBots {
