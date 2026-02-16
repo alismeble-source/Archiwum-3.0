@@ -1,0 +1,7 @@
+{
+  "task_name": "Archiwum-Nightly-Autopilot",
+  "run_time_local": "06:30",
+  "pipeline_script": "99_SYSTEM/_SCRIPTS/MAIL/run_mail_pipeline.ps1",
+  "health_report_script": "99_SYSTEM/_SCRIPTS/FINANCE/send_telegram_health_report.py",
+  "log_dir": "00_INBOX/_ROUTER_LOGS"
+}

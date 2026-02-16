@@ -1,162 +1,86 @@
-# Archiwum 3.0 - Project Complete Status (Repo + Scale Snapshot)
+﻿# Archiwum 3.0 - Project Complete Status
 
 **Updated (UTC):** 2026-02-16
-**Owner Goal:** стабильный фундамент под ERP/CRM без поломки текущего рабочего контура.
+**Goal:** stable repo foundation for ERP/CRM growth without breaking current production flow.
 
 ---
 
-## 1) Что уже сделано (факт по проекту)
+## Current state
 
-### Working Core
-- `99_SYSTEM/_SCRIPTS/MAIL/run_mail_pipeline.ps1` работает как главный оркестратор пайплайна.
-- `99_SYSTEM/_SCRIPTS/MAIL/import_gmail_attachments.py` и `router_cases_inbox.py` формируют импорт + роутинг.
-- Логи/операционный трейс идут в `00_INBOX/_ROUTER_LOGS/`.
-- Telegram dashboard активен в `99_SYSTEM/_SCRIPTS/FINANCE/telegram_dashboard_bot_v2.py`.
-- Launcher/restart-контур для бота: `99_SYSTEM/_SCRIPTS/FINANCE/run_dashboard_bot.ps1`.
+### Production entrypoints
+- Mail pipeline: `99_SYSTEM/_SCRIPTS/MAIL/run_mail_pipeline.ps1`
+- Telegram dashboard: `99_SYSTEM/_SCRIPTS/FINANCE/telegram_dashboard_bot_v2.py`
+- Bot launcher/restart loop: `99_SYSTEM/_SCRIPTS/FINANCE/run_dashboard_bot.ps1`
 
-### Repo Bootstrap (сделано)
-- Подготовлен безопасный `.gitignore` для кода/доков без утечки секретов и бизнес-данных.
-- Добавлен каркас масштабируемой структуры: `docs/`, `src/`, `scripts/`, `config/`, `tests/`, `tools/`.
-- Добавлен безопасный скрипт синхронизации `sync.ps1` (стейджит только рабочие code/doc пути, без `git add .`).
-
-### Dashboard (уже внедрено)
-- One-message UI (редактирование одного сообщения вместо спама).
-- Плитки по данным: почта, оплаты, клиенты/выцены, бух, поиск, статус.
-- `/health` содержит техметрики (`pipeline_status`, `quotes_rows`, `quotes_missing_amount` и др.).
-- Есть AI mode в интерфейсе (ответы по локальным CSV/логам).
-
-### Data Sources (привязка к реальным файлам)
-- Почта/роутинг: `00_INBOX/_ROUTER_LOGS/router_log.csv`, `pipeline_run.log`, `pipeline_errors.jsonl`.
-- Оплаты: `FINANCE/PAYMENTS.csv`.
-- Выцены: `FINANCE/CLIENT_QUOTES.csv`.
-- Бух-документы: `FINANCE/DOCS/`.
-
-### Snapshot на момент обновления
-- `FINANCE/PAYMENTS.csv`: 6 строк.
-- `FINANCE/CLIENT_QUOTES.csv`: 7 строк.
-- `router_log.csv` (последние 7 дней): высокий поток `REVIEW`, есть `FIRMA/KLIENTS/CAR`.
+### Data sources in use
+- Routing and pipeline logs: `00_INBOX/_ROUTER_LOGS/`
+- Payables: `FINANCE/PAYMENTS.csv`
+- Quotes: `FINANCE/CLIENT_QUOTES.csv`
+- Accounting docs: `FINANCE/DOCS/`
 
 ---
 
-## 2) High-Level карта системы
+## Repository milestones completed
 
-### A. Ingestion Layer
-- Gmail/iCloud import scripts.
-- Attachment extraction + metadata.
+1. Safe repository bootstrap completed.
+- `.gitignore` hardened for secrets, runtime logs, state files, and business data folders.
+- Initial code/documentation baseline committed to `main`.
 
-### B. Routing Layer
-- Keyword/decision routing в категории `KLIENTS / FIRMA / CAR / REVIEW`.
-- Логирование решений в `router_log.csv`.
+2. Project scaffolding for scale completed.
+- Added: `docs/`, `src/`, `scripts/`, `config/`, `tests/`, `tools/`, `data/`, `runtime/`.
+- Added safe sync helper: `sync.ps1` (stages only allowed code/doc paths).
 
-### C. Business Layer
-- Payments (`PAYMENTS.csv`).
-- Quotes (`CLIENT_QUOTES.csv`).
-- Accounting docs (`FINANCE/DOCS`).
+3. CORE knowledge base connected.
+- Added `CORE/` into git to keep business logic/policy documents versioned.
 
-### D. Control Layer
-- Telegram dashboard (операторский интерфейс).
-- Health/selftest/notify jobs.
+4. Branch model enabled.
+- Stable branch: `main`
+- Working integration branch: `dev` (remote branch created and tracking enabled).
 
-### E. Ops Layer
-- PowerShell launchers.
-- Runtime logs, lock files, state files.
+5. CI smoke check enabled.
+- Added workflow: `.github/workflows/ci-smoke.yml`
+- Checks:
+  - Python syntax compile under `99_SYSTEM/_SCRIPTS`
+  - PowerShell parse validation under `99_SYSTEM/_SCRIPTS`
+  - Required file presence smoke check
 
----
-
-## 3) Что мешает масштабировать (риски и конфликты)
-
-### Дубли и конфликты версий
-- Telegram bot versions: `telegram_dashboard_bot.py`, `telegram_dashboard_bot_new.py`, `telegram_dashboard_bot_v2.py`.
-- Router versions: `inbox_router.ps1`, `inbox_router_v2.ps1`, `inbox_router_v3.ps1`.
-- Draft builder versions: `draft_builder_v4.ps1`, `v41`, `v42`, `v43`.
-
-### Риски при первом Git commit
-- В дереве есть секреты (`99_SYSTEM/_SECRETS`, OAuth token/credentials, token files в разных местах).
-- Много операционных и бизнес-данных (документы, PDF, медиа, отчеты) - очень большой и чувствительный commit.
-- Логи и runtime-state могут дать постоянный шум в diff.
-- Есть конфликтные Dropbox-копии и бинарные хвосты.
-
-### Технические риски
-- Много абсолютных путей в скриптах (Windows-only привязка).
-- Возможен конфликт двух экземпляров Telegram polling (already seen `terminated by other getUpdates request`).
-- Часть документации устарела и в смешанной кодировке.
+6. Autopilot v1 components prepared.
+- Runner: `scripts/windows/nightly_autopilot.ps1`
+- Task setup: `scripts/windows/register_autopilot_task.ps1`
+- Health telegram sender: `99_SYSTEM/_SCRIPTS/FINANCE/send_telegram_health_report.py`
+- Ops docs: `docs/operations/AUTOPILOT_V1.md`, `docs/operations/GIT_WORKFLOW.md`
+- Config templates: `config/examples/secrets.env.example`, `config/examples/autopilot.settings.example.json`
 
 ---
 
-## 4) Рекомендованная структура репозитория (без ломки текущей логики)
+## Open risks (still relevant)
 
-```text
-Archiwum-3.0/
-  .github/
-    agents/
-    workflows/              # позже
-  docs/
-    architecture/
-    operations/
-    security/
-  src/
-    mail/                   # импорт/роутинг
-    finance/                # dashboard, отчеты
-    calendar/
-    common/
-  scripts/
-    windows/
-  config/
-    examples/               # только шаблоны
-  tests/
-  tools/
-  data/                     # локально, в .gitignore
-  runtime/                  # локально, в .gitignore
+- Multiple legacy script versions exist (`*_v2`, `*_v3`, `*_new`, draft builders).
+- Absolute Windows paths remain in several scripts.
+- Telegram polling conflict can happen if two bot instances run in parallel.
+- Runtime data quality depends on log consistency (`router_log.csv`, `pipeline_errors.jsonl`).
+
+---
+
+## Next practical steps
+
+1. Register and test nightly task:
+```powershell
+.\scripts\windows\register_autopilot_task.ps1 -At "06:30"
+Start-ScheduledTask -TaskName "Archiwum-Nightly-Autopilot"
 ```
 
-**Переезд делаем постепенно**: пока оставляем текущие пути рабочими, репо строим вокруг них с alias/README и поэтапным переносом.
+2. Keep all daily changes in `dev`, merge to `main` only after CI passes.
+
+3. Start phase-1 modularization:
+- move reusable helpers to `src/common`
+- keep production entrypoints unchanged during migration
 
 ---
 
-## 5) Политика Git: что versioned / ignored / вынесено
+## Definition of done for this phase
 
-### Versioned (в Git)
-- Код: `99_SYSTEM/_SCRIPTS/**` (кроме secrets/forensic/runtime).
-- Документация: `.github/**`, `docs/**`, README/agent файлы.
-- Безопасные конфиги и шаблоны: `.vscode/launch.json`, `.vscode/tasks.json`, `.env.example`.
-
-### Ignored (в .gitignore)
-- Все секреты/токены/credentials.
-- Runtime logs, lock/state files.
-- Бизнес-данные и документы (CASES/FINANCE docs/архивы/медиа).
-- Forensic/history dumps.
-
-### Вынести отдельно
-- Secrets в `99_SYSTEM/_SECRETS` + менеджер секретов/env vars.
-- Большие файлы - отдельно (Dropbox/NAS/S3), не в git.
-- Генерируемые отчеты и кэш - в `runtime/` или `data/processed/` (игнорируются).
-
----
-
-## 6) Naming Convention (рекомендуемый минимум)
-
-- Python: `snake_case.py`
-- PowerShell: `verb_noun.ps1` (например `run_mail_pipeline.ps1`)
-- Доки: `UPPER_SNAKE.md` для статусов, `kebab-case.md` для гайдов
-- Версии: не `*_new`, а `*_v2`, `*_v3` + `CURRENT.md` с официальным entrypoint.
-
----
-
-## 7) Immediate plan (без рефакторинга «всё сразу»)
-
-1. Зафиксировать единый production-entrypoint:
-   - Bot: `telegram_dashboard_bot_v2.py`
-   - Pipeline: `run_mail_pipeline.ps1`
-2. Держать старые версии как legacy (не удалять), но пометить в `docs/operations/CURRENT_COMPONENTS.md`.
-3. Первый clean commit: только код + доки + безопасные конфиги.
-4. После первого commit - добавить минимальные smoke-tests для bot/pipeline health.
-
----
-
-## 8) Definition of Done для этапа Repo Bootstrap
-
-- Репозиторий не содержит секретов.
-- `git status` стабильно показывает только код/доки/конфиги.
-- Telegram bot и mail pipeline запускаются из текущих путей как раньше.
-- Есть один понятный документ «что прод», «что legacy», «что следующий шаг».
-
+- Repo contains code/docs/config templates only (no secrets, no heavy business data).
+- `main` stays stable, `dev` used for integration.
+- CI smoke checks run on push/PR.
+- Nightly autopilot scripts are available for one-command activation.
