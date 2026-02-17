@@ -118,11 +118,11 @@ def main(max_new=25, mailbox="INBOX"):
             continue
 
         raw_bytes = msg_data[0][1]
-        meta_line = msg_data[0][0]; 
-if isinstance(meta_line, bytes):
-    meta_line = meta_line.decode("utf-8", errors="replace")
-else:
-    meta_line = str(meta_line)
+        meta_line = msg_data[0][0]
+        if isinstance(meta_line, bytes):
+            meta_line = meta_line.decode("utf-8", errors="replace")
+        else:
+            meta_line = str(meta_line)
 
         internal_dt = datetime.now(timezone.utc)
         m = re.search(r'INTERNALDATE "([^"]+)"', meta_line)

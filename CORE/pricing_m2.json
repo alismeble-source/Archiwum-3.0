@@ -1,0 +1,46 @@
+{
+  "currency": "PLN",
+  "updated": "2026-02-03",
+  "dsp_sheet": {
+    "dimensions": "2.8m x 2.07m",
+    "area_m2": 5.8,
+    "notes": "Стандартная плита ДСП"
+  },
+  "blat_logic": {
+    "min_size": "4100x600mm",
+    "rule": "Если заказ > 4100mm, нужно купить 2 плиты",
+    "stone_blat": "НЕ ДЕЛАЕМ (15-20k zł камень - не наша специализация)",
+    "typical_price_client": "1500-2500 zł (laminat/drewno)"
+  },
+  "korpus_pricing": {
+    "szafka_58x33_3szuflady_blum": {
+      "base_price": 1844,
+      "promo_price": 1604,
+      "your_prof_price": 1028,
+      "discount_percent": 44,
+      "client_price_target": "2000-2200",
+      "notes": "Korpus БЕЗ frontów, z systemami Blum Legrabox"
+    }
+  },
+  "materials_m2": {
+    "lak": {
+      "cost_m2_you": 320,
+      "client_m2_target": 700,
+      "notes": "Лак (m2): клиент ~700"
+    },
+    "rifl": {
+      "cost_m2_you": 450,
+      "client_m2_target": 900,
+      "notes": "Рифл (m2): клиент ~900"
+    },
+    "shpon_mdf_lak_2s": {
+      "client_m2_range": [1400, 1800],
+      "notes": "Шпон: MDF 19 мм, шпон 2 стороны + лак бесцветный 2 стороны"
+    }
+  },
+  "business_stats": {
+    "total_revenue_18months": 329789.86,
+    "last_6months": 80679.71,
+    "source": "centrum.meble.pl professional account"
+  }
+}

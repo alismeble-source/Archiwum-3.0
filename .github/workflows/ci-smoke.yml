@@ -1,0 +1,83 @@
+name: CI Smoke
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $files = Get-ChildItem -Path "99_SYSTEM/_SCRIPTS" -Recurse -Filter *.py | ForEach-Object { $_.FullName }
+          if (-not $files) { throw "No Python files found under 99_SYSTEM/_SCRIPTS" }
+          $tmp = New-TemporaryFile
+          @'
+          import py_compile
+          import sys
+
+          failed = []
+          for path in sys.argv[1:]:
+              try:
+                  py_compile.compile(path, doraise=True)
+              except Exception as e:
+                  failed.append(f"{path}: {e}")
+          if failed:
+              print("Python syntax errors:")
+              for item in failed:
+                  print(item)
+              raise SystemExit(1)
+          print(f"OK: compiled {len(sys.argv)-1} python files")
+          '@ | Set-Content -Path $tmp -Encoding utf8
+          python $tmp @files
+
+      - name: PowerShell parse check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $psFiles = Get-ChildItem -Path "99_SYSTEM/_SCRIPTS" -Recurse -Filter *.ps1
+          if (-not $psFiles) { throw "No PowerShell files found under 99_SYSTEM/_SCRIPTS" }
+          $failed = @()
+          foreach ($f in $psFiles) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors -and $errors.Count -gt 0) {
+              $failed += "$($f.FullName)`n$($errors | ForEach-Object { $_.Message } | Out-String)"
+            }
+          }
+          if ($failed.Count -gt 0) {
+            Write-Host "PowerShell parse errors found:"
+            $failed | ForEach-Object { Write-Host $_ }
+            exit 1
+          }
+          Write-Host "OK: parsed $($psFiles.Count) PowerShell files"
+
+      - name: Required file smoke check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $required = @(
+            ".gitignore",
+            "99_SYSTEM/_SCRIPTS/MAIL/run_mail_pipeline.ps1",
+            "99_SYSTEM/_SCRIPTS/FINANCE/telegram_dashboard_bot_v2.py",
+            ".github/agents/PROJECT_COMPLETE_STATUS.md"
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path $path)) { throw "Missing required file: $path" }
+          }
+          Write-Host "OK: required file smoke check passed"

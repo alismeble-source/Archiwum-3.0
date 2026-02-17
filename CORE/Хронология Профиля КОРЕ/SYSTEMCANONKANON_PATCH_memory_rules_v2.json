@@ -1,0 +1,30 @@
+{
+  "patch_name": "KANON_PATCH_memory_rules_v2",
+  "version": "v2",
+  "applies_to": "ALISMBLE_SYSTEM_KANON.json",
+  "change_type": "update_section",
+  "target_section": "memory_rules",
+  "previous_value": {
+    "cases": "status + links only",
+    "documents": "dropbox_links_only",
+    "chat": "analysis_only_no_memory"
+  },
+  "new_value": {
+    "cases": "status + links only",
+    "documents": "dropbox_links_only",
+    "chat": "operational_context_only_no_file_storage",
+    "context_definition": {
+      "includes": [
+        "active_case",
+        "current_status",
+        "last_action",
+        "identified_risks",
+        "proposed_next_step"
+      ],
+      "reset_condition": "session_end_or_manual_clear"
+    }
+  },
+  "author": "AlisMeble Control Core (KANON_v1)",
+  "timestamp": "2026-01-19T00:00:00Z",
+  "description": "Redefinicja zasad pamięci: czat nie przechowuje danych, ale utrzymuje kontekst operacyjny aktywnego CASE’u."
+}

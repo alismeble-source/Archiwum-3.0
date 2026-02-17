@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = "C:\Users\alimg\Dropbox\Archiwum 3.0"
 $venvPython = Join-Path $root ".venv\Scripts\python.exe"
 $bot = Join-Path $root "99_SYSTEM\_SCRIPTS\FINANCE\telegram_dashboard_bot_v2.py"
+$botRelative = ".\99_SYSTEM\_SCRIPTS\FINANCE\telegram_dashboard_bot_v2.py"
 $logDir = Join-Path $root "00_INBOX\_ROUTER_LOGS"
 $launcherLog = Join-Path $logDir "telegram_dashboard_launcher.log"
 
@@ -22,7 +23,18 @@ if (-not (Test-Path $logDir)) {
 
 function Write-LauncherLog([string]$msg) {
     $ts = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-    Add-Content -Path $launcherLog -Value "$ts $msg"
+    try {
+        Add-Content -Path $launcherLog -Value "$ts $msg" -Encoding UTF8
+    } catch {
+        try {
+            # Recovery path for corrupted/locked launcher log files.
+            Remove-Item -Path $launcherLog -Force -ErrorAction SilentlyContinue
+            Set-Content -Path $launcherLog -Value "$ts log reset after write failure" -Encoding UTF8
+            Add-Content -Path $launcherLog -Value "$ts $msg" -Encoding UTF8
+        } catch {
+            # Logging must never stop launcher workflow.
+        }
+    }
 }
 
 function Stop-ExistingDashboardBots {
@@ -54,7 +66,13 @@ $maxRestarts = 20
 $restarts = 0
 
 while ($true) {
-    & $venvPython $bot
+    Push-Location $root
+    try {
+        # Use relative script path to avoid path-splitting issues with spaces in root path.
+        & $venvPython $botRelative
+    } finally {
+        Pop-Location
+    }
     $rc = $LASTEXITCODE
 
     if ($rc -eq 0) {
