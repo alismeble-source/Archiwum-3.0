@@ -1,0 +1,21 @@
+# =============================================================
+# Archiwum 3.0 — Python dependencies
+# Install: pip install -r requirements.txt
+# Optional extras are commented — install only what you need.
+# =============================================================
+
+# Google API (Gmail import + Calendar sync)
+google-auth>=2.29.0
+google-auth-oauthlib>=1.2.1
+google-api-python-client>=2.131.0
+
+# Telegram dashboard bot
+python-telegram-bot>=21.4
+
+# --- Optional ---
+
+# PDF text extraction (router_cases_inbox.py)
+# pdfplumber>=0.11.4
+
+# AI client evaluator (client_evaluator.py, ai_responder.py)
+# anthropic>=0.34.2

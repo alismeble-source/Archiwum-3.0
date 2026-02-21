@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = "Stop"
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$root = "C:\Users\alimg\Dropbox\Archiwum 3.0"
+$scriptDir = $PSScriptRoot
+$root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\.."))
 $venvPython = Join-Path $root ".venv\Scripts\python.exe"
 $pythonExe = if (Test-Path $venvPython) { $venvPython } else { "python" }
 

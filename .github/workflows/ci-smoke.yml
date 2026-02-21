@@ -49,8 +49,11 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $psFiles = Get-ChildItem -Path "99_SYSTEM/_SCRIPTS" -Recurse -Filter *.ps1
-          if (-not $psFiles) { throw "No PowerShell files found under 99_SYSTEM/_SCRIPTS" }
+          $psFiles = @(
+            (Get-ChildItem -Path "99_SYSTEM/_SCRIPTS" -Recurse -Filter *.ps1)
+            (Get-ChildItem -Path "scripts"            -Recurse -Filter *.ps1)
+          ) | Where-Object { $_ }
+          if (-not $psFiles) { throw "No PowerShell files found" }
           $failed = @()
           foreach ($f in $psFiles) {
             $tokens = $null
@@ -73,6 +76,7 @@ jobs:
           $ErrorActionPreference = "Stop"
           $required = @(
             ".gitignore",
+            "requirements.txt",
             "99_SYSTEM/_SCRIPTS/MAIL/run_mail_pipeline.ps1",
             "99_SYSTEM/_SCRIPTS/FINANCE/telegram_dashboard_bot_v2.py",
             ".github/agents/PROJECT_COMPLETE_STATUS.md"
